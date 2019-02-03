@@ -1,3 +1,7 @@
 #home-title {
   color: #65db9a;
 }
+
+#home-subtitle > a {
+  color: #65db9a;
+}
