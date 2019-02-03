@@ -3,17 +3,17 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>//www.ryancurtin.com/categories/</loc>
+    <loc>//ryancurtin.com/categories/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>//www.ryancurtin.com/</loc>
+    <loc>//ryancurtin.com/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>//www.ryancurtin.com/tags/</loc>
+    <loc>//ryancurtin.com/tags/</loc>
     <priority>0</priority>
   </url>
   

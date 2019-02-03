@@ -2,12 +2,12 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on Ryan Curtin</title>
-    <link>//www.ryancurtin.com/categories/</link>
+    <link>//ryancurtin.com/categories/</link>
     <description>Recent content in Categories on Ryan Curtin</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
-	<atom:link href="//www.ryancurtin.com/categories/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="//ryancurtin.com/categories/index.xml" rel="self" type="application/rss+xml" />
     
     
   </channel>
