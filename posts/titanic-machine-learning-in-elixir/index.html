@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta itemprop="name" content="The Titanic Machine Learning Problem in Elixir">
+<meta itemprop="description" content="The Problem The &ldquo;Titanic Problem&rdquo; is the most popular contest on Kaggle, and it presents an easily digestible problem to allow newcomers to dip their toes into machine learning.
+Based on a training data set that contains characteristics about a passenger such as their age, sex, and class of their ticket, we are tasked with predicting which passengers survived the shipwreck. There are thousands of submissions with some truly impressive feature engineering, but in order to really participate in the competition, you need to show your work in the form of a Jupyter notebook."><meta itemprop="datePublished" content="2022-08-03T16:52:24-04:00" />
+<meta itemprop="dateModified" content="2022-08-03T16:52:24-04:00" />
+<meta itemprop="wordCount" content="3513">
+<meta itemprop="keywords" content="elixir,neural network,machine learning," /><meta property="og:title" content="The Titanic Machine Learning Problem in Elixir" />
+<meta property="og:description" content="The Problem The &ldquo;Titanic Problem&rdquo; is the most popular contest on Kaggle, and it presents an easily digestible problem to allow newcomers to dip their toes into machine learning.
+Based on a training data set that contains characteristics about a passenger such as their age, sex, and class of their ticket, we are tasked with predicting which passengers survived the shipwreck. There are thousands of submissions with some truly impressive feature engineering, but in order to really participate in the competition, you need to show your work in the form of a Jupyter notebook." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="//ryancurtin.com/posts/titanic-machine-learning-in-elixir/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-08-03T16:52:24-04:00" />
+<meta property="article:modified_time" content="2022-08-03T16:52:24-04:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="The Titanic Machine Learning Problem in Elixir"/>
+<meta name="twitter:description" content="The Problem The &ldquo;Titanic Problem&rdquo; is the most popular contest on Kaggle, and it presents an easily digestible problem to allow newcomers to dip their toes into machine learning.
+Based on a training data set that contains characteristics about a passenger such as their age, sex, and class of their ticket, we are tasked with predicting which passengers survived the shipwreck. There are thousands of submissions with some truly impressive feature engineering, but in order to really participate in the competition, you need to show your work in the form of a Jupyter notebook."/>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="">
+	<link rel="shortcut icon" href="/favicon.ico">
+
+	<title>The Titanic Machine Learning Problem in Elixir</title>
+	<link rel="stylesheet" href="//ryancurtin.com/css/style.min.037b6ee8f8c1baab6a3d0a9da11c3ff18a7552471f16c59fd98538d5ce99208b.css" integrity="sha256-A3tu6PjBuqtqPQqdoRw/8Yp1UkcfFsWf2YU41c6ZIIs=" crossorigin="anonymous">
+	
+	<link rel="stylesheet" href="//ryancurtin.com/css/home.css">
+</head>
+
+<body id="page">
+	
+	<header id="site-header" class="animated slideInUp">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="//ryancurtin.com/">Ryan Curtin</a>
+				</div>
+				<nav class="site-nav hide-in-mobile">
+					
+				<a href="//ryancurtin.com/posts/">Writing</a>
+
+				</nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-social hide-in-mobile"><a href="mailto:rcurtin88@gmail.com" target="_blank" rel="noopener me" title="Email"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></a><a href="https://github.com/ryancurtin" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a></span><button id="menu-btn" class="hdr-btn" title="Menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="//ryancurtin.com/posts/">Writing</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner animated fadeIn faster">
+		<article class="thin">
+			<header class="post-header">
+				<div class="post-meta"><span>Aug 3, 2022</span></div>
+				<h1>The Titanic Machine Learning Problem in Elixir</h1>
+			</header>
+			<div class="content">
+				<h2 id="the-problem">The Problem<a href="#the-problem" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>The &ldquo;Titanic Problem&rdquo; is the most popular contest on <a href="https://kaggle.com">Kaggle</a>, and it presents an easily digestible problem to allow newcomers to dip their toes into machine learning.</p>
+<p>Based on a training data set that contains characteristics about a passenger such as their age, sex, and class of their ticket, we are tasked with predicting which passengers survived the shipwreck. There are thousands of submissions with some truly impressive feature engineering, but in order to <em>really</em> participate in the competition, you need to show your work in the form of a Jupyter notebook. In other words, you&rsquo;re going to be writing Python or R.</p>
+<!-- raw HTML omitted -->
+<h3 id="why-deviate">Why Deviate?<a href="#why-deviate" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Python is <em>fine</em> in my eyes. It&rsquo;s approachable, readable, and the machine learning community has fully embraced and supported the Python ecosystem. The sheer breadth and depth of developer mindshare and third party libraries had me questioning if there is room for any viable alternative to exist.</p>
+<p>Elixir has been my professional bread-and-butter for the past five years: I built (and sold) a company using it, and even if there is a relative dearth of third-party libraries, the developer experience has always been something I&rsquo;ve admired. The Elixir community feels inherently optimistic. Functional programming has never been more approachable: I&rsquo;m not a purist by any means, but writing good Elixir code feels like something you&rsquo;d want to show off to your teammates (I frequently do to limited acclaim, I concede). I don&rsquo;t have a better argument than that.</p>
+<p>I knew that the <a href="https://github.com/elixir-nx/nx">nx</a> project had been brewing for awhile, and finally, my interest in machine learning caught up to the point where I can use it. There&rsquo;s also the excellent <a href="https://github.com/elixir-nx/axon">axon</a> library that is comparable to PyTorch and <a href="https://github.com/elixir-nx/explorer">explorer</a> for <em>exploring</em> your dataset. While these libraries may not be as mature, their APIs are similar to their Python equivalents; there has been a genuine effort to build a fully-featured ML suite in Elixir.</p>
+<!-- raw HTML omitted -->
+<h3 id="early-struggles">Early Struggles<a href="#early-struggles" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>I&rsquo;ll preface this project by saying that it took me a bit too long. I already had a decent grasp of neural network concepts, and there is plenty of example code out there in Python that would have enabled me to cobble something together and iterate more quickly.</p>
+<p>Python has had a twenty-year head start to seed the internet with blog posts and tutorials, so make no mistake, you&rsquo;re going to be reading a lot of documentation when doing a ML project in Elixir. My general feeling is that the documentation is of extremely high quality, but nothing makes a concept click like a working, usable example.</p>
+<p>In order to really get the ball rolling, I&rsquo;d need to setup an environment that allowed me to make some immediate progress and test my hypotheses in real time. <a href="https://github.com/livebook-dev/livebook">Livebook</a> has been a fantastic replacement for a Jupyter notebook, and it was a breeze to setup locally.</p>
+<!-- raw HTML omitted -->
+<h3 id="back-to-the-problem">Back to the Problem<a href="#back-to-the-problem" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>I ran Livebook locally using the recommended instruction, but I suppose using Docker would be just as easy:</p>
+<p><code>MIX_ENV=prod mix phx.server</code></p>
+<p>Once Livebook was up and running, I installed nx, axon, explorer, and <a href="https://github.com/livebook-dev/vega_lite">vega_lite</a> for visualization. I also recognized that for this problem, I&rsquo;d need to be doing one-hot encoding and I didn&rsquo;t want to write that part myself. Thankfully, there was a benevolent dev that walked this path before me and wrote <a href="https://github.com/davidrichards/analysis_prep">analysis_prep</a>. I forked it and <a href="https://github.com/ryancurtin/analysis_prep">made a minor tweak</a> to get it to compile with Elixir 1.13, and I was ready to begin.</p>
+<p>To create a prediction, I&rsquo;m going to build a simple neural network in Axon and do some basic feature engineering to massage the data into a state that&rsquo;s usable by our model. My intent here is to prove that it&rsquo;s viable to do serious machine learning in the Elixir ecosystem, not to solve this particular problem in the most sophisticated manner.</p>
+<p>The Kaggle competition provides us a CSV with data we can use to train our model, so the first step is to load it into a DataFrame to be able to work with it more easily:</p>
+<!-- raw HTML omitted -->
+<h3 id="livebook">Livebook<a href="#livebook" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>I wrote this blog post in Livebook, and I&rsquo;ve <a href="https://github.com/ryancurtin/titanic-machine-learning/blob/main/titanic-machine-learning.livemd">published the .livemd on Github</a>. In each section below, I&rsquo;ll also include all of my Livebook code entries, along with the results:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span><span style="color:#a6e22e">Mix</span><span style="color:#f92672">.</span>install([
+</span></span><span style="display:flex;"><span>  {<span style="color:#e6db74">:axon</span>, <span style="color:#e6db74">&#34;~&gt; 0.1.0&#34;</span>},
+</span></span><span style="display:flex;"><span>  {<span style="color:#e6db74">:exla</span>, <span style="color:#e6db74">&#34;~&gt; 0.2.2&#34;</span>},
+</span></span><span style="display:flex;"><span>  {<span style="color:#e6db74">:nx</span>, <span style="color:#e6db74">&#34;~&gt; 0.2.1&#34;</span>},
+</span></span><span style="display:flex;"><span>  {<span style="color:#e6db74">:explorer</span>, <span style="color:#e6db74">&#34;~&gt; 0.2.0&#34;</span>},
+</span></span><span style="display:flex;"><span>  {<span style="color:#e6db74">:analysis_prep</span>, <span style="color:#e6db74">github</span>: <span style="color:#e6db74">&#34;ryancurtin/analysis_prep&#34;</span>},
+</span></span><span style="display:flex;"><span>  {<span style="color:#e6db74">:vega_lite</span>, <span style="color:#e6db74">&#34;~&gt; 0.1.4&#34;</span>},
+</span></span><span style="display:flex;"><span>  {<span style="color:#e6db74">:kino_vega_lite</span>, <span style="color:#e6db74">&#34;~&gt; 0.1.2&#34;</span>},
+</span></span><span style="display:flex;"><span>  {<span style="color:#e6db74">:jason</span>, <span style="color:#e6db74">&#34;~&gt; 1.2&#34;</span>}
+</span></span><span style="display:flex;"><span>])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">alias</span> <span style="color:#a6e22e">VegaLite</span>, <span style="color:#e6db74">as</span>: <span style="color:#a6e22e">Vl</span>
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<pre tabindex="0"><code>warning: String.strip/1 is deprecated. Use String.trim/1 instead
+  mix.exs:7: AnalysisPrep.Mixfile.project/0
+</code></pre><!-- raw HTML omitted -->
+<pre tabindex="0"><code>VegaLite
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>df <span style="color:#f92672">=</span> <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>from_csv!(<span style="color:#e6db74">&#34;data/train.csv&#34;</span>)
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<pre tabindex="0"><code>#Explorer.DataFrame&lt;
+  Polars[891 x 12]
+  PassengerId integer [1, 2, 3, 4, 5, ...]
+  Survived integer [0, 1, 1, 1, 0, ...]
+  Pclass integer [3, 1, 3, 1, 3, ...]
+  Name string [&#34;Braund, Mr. Owen Harris&#34;, &#34;Cumings, Mrs. John Bradley (Florence Briggs Thayer)&#34;,
+   &#34;Heikkinen, Miss. Laina&#34;, &#34;Futrelle, Mrs. Jacques Heath (Lily May Peel)&#34;,
+   &#34;Allen, Mr. William Henry&#34;, ...]
+  Sex string [&#34;male&#34;, &#34;female&#34;, &#34;female&#34;, &#34;female&#34;, &#34;male&#34;, ...]
+  Age float [22.0, 38.0, 26.0, 35.0, 35.0, ...]
+  SibSp integer [1, 1, 0, 1, 0, ...]
+  Parch integer [0, 0, 0, 0, 0, ...]
+  Ticket string [&#34;A/5 21171&#34;, &#34;PC 17599&#34;, &#34;STON/O2. 3101282&#34;, &#34;113803&#34;, &#34;373450&#34;, ...]
+  Fare float [7.25, 71.2833, 7.925, 53.1, 8.05, ...]
+  Cabin string [nil, &#34;C85&#34;, nil, &#34;C123&#34;, nil, ...]
+  Embarked string [&#34;S&#34;, &#34;C&#34;, &#34;S&#34;, &#34;S&#34;, &#34;S&#34;, ...]
+&gt;
+</code></pre><h3 id="cleaning-the-data">Cleaning the Data<a href="#cleaning-the-data" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Some fields will not be relevant to the overall result of the dataset, so they can either be dropped or modified in order to give us clean input data for training / testing.</p>
+<p>While we use Pclass as a proxy for the economic status of the passenger, we are dropping &ldquo;Fare&rdquo; since that would serve a similar purpose. I acknowledge that the other columns like &ldquo;Ticket&rdquo;, &ldquo;Cabin&rdquo;, and &ldquo;Embarked&rdquo; <em>could</em> have some impact on whether or not a passenger survived, but I chose to omit them because I considered their predictive value to be negligible.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>df_clean <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>select(
+</span></span><span style="display:flex;"><span>    df,
+</span></span><span style="display:flex;"><span>    [<span style="color:#e6db74">&#34;Name&#34;</span>, <span style="color:#e6db74">&#34;Cabin&#34;</span>, <span style="color:#e6db74">&#34;Embarked&#34;</span>, <span style="color:#e6db74">&#34;PassengerId&#34;</span>, <span style="color:#e6db74">&#34;Ticket&#34;</span>, <span style="color:#e6db74">&#34;Fare&#34;</span>],
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">:drop</span>
+</span></span><span style="display:flex;"><span>  )
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<pre tabindex="0"><code>#Explorer.DataFrame&lt;
+  Polars[891 x 6]
+  Survived integer [0, 1, 1, 1, 0, ...]
+  Pclass integer [3, 1, 3, 1, 3, ...]
+  Sex string [&#34;male&#34;, &#34;female&#34;, &#34;female&#34;, &#34;female&#34;, &#34;male&#34;, ...]
+  Age float [22.0, 38.0, 26.0, 35.0, 35.0, ...]
+  SibSp integer [1, 1, 0, 1, 0, ...]
+  Parch integer [0, 0, 0, 0, 0, ...]
+&gt;
+</code></pre><p>Elixir lacks a built-in normalization algorithm for DataFrames, so I am writing my own in which I ignore nil values.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span><span style="color:#66d9ef">defmodule</span> <span style="color:#a6e22e">Normalizer</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> normalize(list) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    filtered <span style="color:#f92672">=</span> <span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>filter(list, <span style="color:#f92672">&amp;</span> &amp;1)
+</span></span><span style="display:flex;"><span>    {min, max} <span style="color:#f92672">=</span> <span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>min_max(filtered)
+</span></span><span style="display:flex;"><span>    {new_min, new_max} <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>map(list, <span style="color:#66d9ef">fn</span> entry <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">if</span> entry <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>        new_min <span style="color:#f92672">+</span> (entry <span style="color:#f92672">-</span> min) <span style="color:#f92672">/</span> (max <span style="color:#f92672">-</span> min) <span style="color:#f92672">*</span> (new_max <span style="color:#f92672">-</span> new_min)
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<pre tabindex="0"><code>{:module, Normalizer, &lt;&lt;70, 79, 82, 49, 0, 0, 8, ...&gt;&gt;, {:normalize, 1}}
+</code></pre><h3 id="normalizing-age-column">Normalizing Age Column<a href="#normalizing-age-column" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>The Age column will skew the predictions if it is too large of a scalar value. We&rsquo;ll need to normalize this data so that it is scaled between 0 and 1, which makes it less succeptible to an exploding or vanishing gradient due to the impact of weights.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>age_series <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>to_series(df)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;Age&#34;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Explorer.Series</span><span style="color:#f92672">.</span>to_enum()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>normalized_ages <span style="color:#f92672">=</span> <span style="color:#a6e22e">Normalizer</span><span style="color:#f92672">.</span>normalize(age_series)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>normalized_age_series <span style="color:#f92672">=</span> <span style="color:#a6e22e">Explorer.Series</span><span style="color:#f92672">.</span>from_list(normalized_ages)
+</span></span><span style="display:flex;"><span>df_clean <span style="color:#f92672">=</span> <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>mutate(df_clean, <span style="color:#e6db74">Age</span>: normalized_age_series)
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<pre tabindex="0"><code>#Explorer.DataFrame&lt;
+  Polars[891 x 6]
+  Survived integer [0, 1, 1, 1, 0, ...]
+  Pclass integer [3, 1, 3, 1, 3, ...]
+  Sex string [&#34;male&#34;, &#34;female&#34;, &#34;female&#34;, &#34;female&#34;, &#34;male&#34;, ...]
+  Age float [0.2711736617240513, 0.4722292033174164, 0.32143754712239253, 0.43453128926866047,
+   0.43453128926866047, ...]
+  SibSp integer [1, 1, 0, 1, 0, ...]
+  Parch integer [0, 0, 0, 0, 0, ...]
+&gt;
+</code></pre><h3 id="one-hot-encoding-sex-column">One-hot encoding Sex Column<a href="#one-hot-encoding-sex-column" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Since a neural network is operating on a series of matrices with weights as floats, processing &ldquo;male&rdquo; vs. &ldquo;female&rdquo; becomes much easier with a simple binary encoding of 1 for male and 0 for female. Also note that I&rsquo;m dividing by 1 to convert the number to a float in the DataFrame.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>[_classification_list <span style="color:#f92672">|</span> sex_one_hot] <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>to_series(df)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;Sex&#34;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Explorer.Series</span><span style="color:#f92672">.</span>to_enum()
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">AnalysisPrep</span><span style="color:#f92672">.</span>one_hot()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sex_series <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>  sex_one_hot
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>map(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>at(&amp;1, <span style="color:#ae81ff">1</span>))
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>map(<span style="color:#f92672">&amp;</span>(&amp;1 <span style="color:#f92672">/</span> <span style="color:#ae81ff">1</span>))
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Explorer.Series</span><span style="color:#f92672">.</span>from_list()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>df_clean <span style="color:#f92672">=</span> <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>mutate(df_clean, <span style="color:#e6db74">Sex</span>: sex_series)
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<pre tabindex="0"><code>#Explorer.DataFrame&lt;
+  Polars[891 x 6]
+  Survived integer [0, 1, 1, 1, 0, ...]
+  Pclass integer [3, 1, 3, 1, 3, ...]
+  Sex float [1.0, 0.0, 0.0, 0.0, 1.0, ...]
+  Age float [0.2711736617240513, 0.4722292033174164, 0.32143754712239253, 0.43453128926866047,
+   0.43453128926866047, ...]
+  SibSp integer [1, 1, 0, 1, 0, ...]
+  Parch integer [0, 0, 0, 0, 0, ...]
+&gt;
+</code></pre><h3 id="binary-columns-for-each-pclass-one-hot">Binary columns for each Pclass (One-hot)<a href="#binary-columns-for-each-pclass-one-hot" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Pclass can be 1, 2, or 3, indicating that the passenger&rsquo;s class. I won&rsquo;t include any analysis of this value, but first-class passengers are more likely to survive. Similar to one-hot encoding, we want to make sure we&rsquo;re operating on binary values to prevent the weights from being skewed. The resulting DataFrame will have a column for Pclass1, Pclass2, and Pclass3, with a binary value (again as a float) representing the passenger&rsquo;s ticketed class.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>[_classification_list <span style="color:#f92672">|</span> pclass_one_hot] <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>to_series(df)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;Pclass&#34;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Explorer.Series</span><span style="color:#f92672">.</span>to_enum()
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">AnalysisPrep</span><span style="color:#f92672">.</span>one_hot()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Want to directly turn this list of lists into a Series and merge into the DataFrame</span>
+</span></span><span style="display:flex;"><span>reduced_one_hot <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>reduce(pclass_one_hot, %{<span style="color:#e6db74">&#34;Pclass1&#34;</span> <span style="color:#f92672">=&gt;</span> [], <span style="color:#e6db74">&#34;Pclass2&#34;</span> <span style="color:#f92672">=&gt;</span> [], <span style="color:#e6db74">&#34;Pclass3&#34;</span> <span style="color:#f92672">=&gt;</span> []}, <span style="color:#66d9ef">fn</span> row, acc <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>update!(acc, <span style="color:#e6db74">&#34;Pclass1&#34;</span>, <span style="color:#f92672">&amp;</span>(&amp;1 <span style="color:#f92672">++</span> [<span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>at(row, <span style="color:#ae81ff">0</span>) <span style="color:#f92672">/</span> <span style="color:#ae81ff">1</span>]))
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>update!(<span style="color:#e6db74">&#34;Pclass2&#34;</span>, <span style="color:#f92672">&amp;</span>(&amp;1 <span style="color:#f92672">++</span> [<span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>at(row, <span style="color:#ae81ff">1</span>) <span style="color:#f92672">/</span> <span style="color:#ae81ff">1</span>]))
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>update!(<span style="color:#e6db74">&#34;Pclass3&#34;</span>, <span style="color:#f92672">&amp;</span>(&amp;1 <span style="color:#f92672">++</span> [<span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>at(row, <span style="color:#ae81ff">2</span>) <span style="color:#f92672">/</span> <span style="color:#ae81ff">1</span>]))
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>df_clean <span style="color:#f92672">=</span> <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>mutate(df_clean, reduced_one_hot)
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<pre tabindex="0"><code>#Explorer.DataFrame&lt;
+  Polars[891 x 9]
+  Survived integer [0, 1, 1, 1, 0, ...]
+  Pclass integer [3, 1, 3, 1, 3, ...]
+  Sex float [1.0, 0.0, 0.0, 0.0, 1.0, ...]
+  Age float [0.2711736617240513, 0.4722292033174164, 0.32143754712239253, 0.43453128926866047,
+   0.43453128926866047, ...]
+  SibSp integer [1, 1, 0, 1, 0, ...]
+  Parch integer [0, 0, 0, 0, 0, ...]
+  Pclass1 float [0.0, 1.0, 0.0, 1.0, 0.0, ...]
+  Pclass2 float [0.0, 0.0, 0.0, 0.0, 0.0, ...]
+  Pclass3 float [1.0, 0.0, 1.0, 0.0, 1.0, ...]
+&gt;
+</code></pre><h3 id="dealing-with-nil-values">Dealing with nil values<a href="#dealing-with-nil-values" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Nx tensors cannot support nil values, and in many cases, neither do the algorithms we employ in our neural network. One slightly acceptable approach (at least for our purposes here) is to insert the mean or median value into the age column: <a href="https://towardsdatascience.com/7-ways-to-handle-missing-values-in-machine-learning-1a6326adf79e">Source</a>.</p>
+<p>A more sophisticated approach would likely do something like bucketing passengers without age values based on the characteristics of similar passengers with age values and &ldquo;guessing&rdquo; their age. In order to let me finish this post in a reasonable amount of time, you&rsquo;ll need to give me a break.</p>
+<p>Next, we will map over the data frame and insert the median value in any rows missing &ldquo;Age&rdquo;:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>age_series <span style="color:#f92672">=</span> <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>to_series(df_clean) <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;Age&#34;</span>)
+</span></span><span style="display:flex;"><span>age_series_median <span style="color:#f92672">=</span> age_series <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Explorer.Series</span><span style="color:#f92672">.</span>median()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>age_series_updated <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">Explorer.Series</span><span style="color:#f92672">.</span>to_enum(age_series)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>map(<span style="color:#f92672">&amp;</span>(&amp;1 <span style="color:#f92672">||</span> age_series_median))
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Explorer.Series</span><span style="color:#f92672">.</span>from_list()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>df_clean <span style="color:#f92672">=</span> <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>mutate(df_clean, %{<span style="color:#e6db74">Age</span>: age_series_updated})
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<pre tabindex="0"><code>#Explorer.DataFrame&lt;
+  Polars[891 x 9]
+  Survived integer [0, 1, 1, 1, 0, ...]
+  Pclass integer [3, 1, 3, 1, 3, ...]
+  Sex float [1.0, 0.0, 0.0, 0.0, 1.0, ...]
+  Age float [0.2711736617240513, 0.4722292033174164, 0.32143754712239253, 0.43453128926866047,
+   0.43453128926866047, ...]
+  SibSp integer [1, 1, 0, 1, 0, ...]
+  Parch integer [0, 0, 0, 0, 0, ...]
+  Pclass1 float [0.0, 1.0, 0.0, 1.0, 0.0, ...]
+  Pclass2 float [0.0, 0.0, 0.0, 0.0, 0.0, ...]
+  Pclass3 float [1.0, 0.0, 1.0, 0.0, 1.0, ...]
+&gt;
+</code></pre><h3 id="modularizing-the-data-cleanup">Modularizing the Data Cleanup<a href="#modularizing-the-data-cleanup" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Now that we&rsquo;ve processed the data cleanup steps one-by-one, it&rsquo;s time to create a module to handle that and run it on our DataFrame before preparing the data for the model. I also wanted to be able to put together some more idiomatic Elixir for anyone still following at home:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span><span style="color:#66d9ef">defmodule</span> <span style="color:#a6e22e">DataCleanup</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">alias</span> <span style="color:#a6e22e">Explorer.DataFrame</span>, <span style="color:#e6db74">as</span>: <span style="color:#a6e22e">DF</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">alias</span> <span style="color:#a6e22e">Explorer.Series</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> build_relevant_dataframe(file_path) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    csv_to_dataframe(file_path)
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|&gt;</span> normalize_age()
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|&gt;</span> one_hot_encode_sex()
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|&gt;</span> one_hot_encode_pclass()
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|&gt;</span> replace_nil_age_values()
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|&gt;</span> drop_irrelevant_columns()
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">defp</span> csv_to_dataframe(file_path) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">DF</span><span style="color:#f92672">.</span>from_csv!(file_path)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">defp</span> normalize_age(df) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    age_series <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">DF</span><span style="color:#f92672">.</span>to_series(df)
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;Age&#34;</span>)
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Explorer.Series</span><span style="color:#f92672">.</span>to_enum()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    normalized_age_series <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">Normalizer</span><span style="color:#f92672">.</span>normalize(age_series)
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Series</span><span style="color:#f92672">.</span>from_list()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">DF</span><span style="color:#f92672">.</span>mutate(df, <span style="color:#e6db74">Age</span>: normalized_age_series)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">defp</span> one_hot_encode_sex(df) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    [_classification_list <span style="color:#f92672">|</span> sex_one_hot] <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">DF</span><span style="color:#f92672">.</span>to_series(df)
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;Sex&#34;</span>)
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Series</span><span style="color:#f92672">.</span>to_enum()
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">AnalysisPrep</span><span style="color:#f92672">.</span>one_hot()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    sex_series <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>      sex_one_hot
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>map(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>at(&amp;1, <span style="color:#ae81ff">1</span>))
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>map(<span style="color:#f92672">&amp;</span>(&amp;1 <span style="color:#f92672">/</span> <span style="color:#ae81ff">1</span>))
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Series</span><span style="color:#f92672">.</span>from_list()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">DF</span><span style="color:#f92672">.</span>mutate(df, <span style="color:#e6db74">Sex</span>: sex_series)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">defp</span> one_hot_encode_pclass(df) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    [_classification_list <span style="color:#f92672">|</span> pclass_one_hot] <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">DF</span><span style="color:#f92672">.</span>to_series(df)
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;Pclass&#34;</span>)
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Series</span><span style="color:#f92672">.</span>to_enum()
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">AnalysisPrep</span><span style="color:#f92672">.</span>one_hot()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Want to directly turn this list of lists into a Series and merge into the DataFrame</span>
+</span></span><span style="display:flex;"><span>    reduced_one_hot <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>reduce(pclass_one_hot, %{<span style="color:#e6db74">&#34;Pclass1&#34;</span> <span style="color:#f92672">=&gt;</span> [], <span style="color:#e6db74">&#34;Pclass2&#34;</span> <span style="color:#f92672">=&gt;</span> [], <span style="color:#e6db74">&#34;Pclass3&#34;</span> <span style="color:#f92672">=&gt;</span> []}, <span style="color:#66d9ef">fn</span> row,
+</span></span><span style="display:flex;"><span>                                                                                           acc <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>update!(acc, <span style="color:#e6db74">&#34;Pclass1&#34;</span>, <span style="color:#f92672">&amp;</span>(&amp;1 <span style="color:#f92672">++</span> [<span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>at(row, <span style="color:#ae81ff">0</span>) <span style="color:#f92672">/</span> <span style="color:#ae81ff">1</span>]))
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>update!(<span style="color:#e6db74">&#34;Pclass2&#34;</span>, <span style="color:#f92672">&amp;</span>(&amp;1 <span style="color:#f92672">++</span> [<span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>at(row, <span style="color:#ae81ff">1</span>) <span style="color:#f92672">/</span> <span style="color:#ae81ff">1</span>]))
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>update!(<span style="color:#e6db74">&#34;Pclass3&#34;</span>, <span style="color:#f92672">&amp;</span>(&amp;1 <span style="color:#f92672">++</span> [<span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>at(row, <span style="color:#ae81ff">2</span>) <span style="color:#f92672">/</span> <span style="color:#ae81ff">1</span>]))
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">end</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">DF</span><span style="color:#f92672">.</span>mutate(df, reduced_one_hot)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">defp</span> replace_nil_age_values(df) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    age_series <span style="color:#f92672">=</span> <span style="color:#a6e22e">DF</span><span style="color:#f92672">.</span>to_series(df) <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;Age&#34;</span>)
+</span></span><span style="display:flex;"><span>    age_series_median <span style="color:#f92672">=</span> age_series <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Series</span><span style="color:#f92672">.</span>median()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    age_series_updated <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">Series</span><span style="color:#f92672">.</span>to_enum(age_series)
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>map(<span style="color:#f92672">&amp;</span>(&amp;1 <span style="color:#f92672">||</span> age_series_median))
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Series</span><span style="color:#f92672">.</span>from_list()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">DF</span><span style="color:#f92672">.</span>mutate(df, %{<span style="color:#e6db74">Age</span>: age_series_updated})
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">defp</span> drop_irrelevant_columns(df) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">DF</span><span style="color:#f92672">.</span>select(df, [<span style="color:#e6db74">&#34;Name&#34;</span>, <span style="color:#e6db74">&#34;Cabin&#34;</span>, <span style="color:#e6db74">&#34;Embarked&#34;</span>, <span style="color:#e6db74">&#34;PassengerId&#34;</span>, <span style="color:#e6db74">&#34;Ticket&#34;</span>, <span style="color:#e6db74">&#34;Pclass&#34;</span>, <span style="color:#e6db74">&#34;Fare&#34;</span>], <span style="color:#e6db74">:drop</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<pre tabindex="0"><code>{:module, DataCleanup, &lt;&lt;70, 79, 82, 49, 0, 0, 19, ...&gt;&gt;, {:drop_irrelevant_columns, 1}}
+</code></pre><h3 id="splitting-training-data-by-classification">Splitting Training Data by Classification<a href="#splitting-training-data-by-classification" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>We will need to split the training data into an &ldquo;X&rdquo; and &ldquo;Y&rdquo; DataFrame in order to start training our model. The &ldquo;Y&rdquo; DataFrame will contain the classification for each passenger (i.e. &ldquo;Did they survive?&rdquo;) and the &ldquo;X&rdquo; DataFrame contains the data from which we will derive the optimum weights for our predictive model.</p>
+<p>One other thing to note is that there is no <code>to_tensor</code> method in explorer to convert a DataFrame to a tensor. There has been <a href="https://github.com/elixir-nx/explorer/issues/107">discussion</a> on this issue, but for now, the API does not have that feature available. I borrowed some code from a recent <a href="https://dockyard.com/blog/2022/04/07/catching-fraud-with-elixir-and-axon">Dockyard post</a> that shows how you can use nx and axon to detect a fradulent credit card transaction. I&rsquo;d recommend checking that one out as soon as you&rsquo;re done here!</p>
+<p>In any case, let&rsquo;s split the data and convert it to a tensor so we can start training our model:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>to_tensor <span style="color:#f92672">=</span> <span style="color:#66d9ef">fn</span> df <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>  df
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>names()
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>map(<span style="color:#f92672">&amp;</span>(<span style="color:#a6e22e">Explorer.Series</span><span style="color:#f92672">.</span>to_tensor(df[&amp;1]) <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Nx</span><span style="color:#f92672">.</span>new_axis(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)))
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Nx</span><span style="color:#f92672">.</span>concatenate(<span style="color:#e6db74">axis</span>: <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>df_train_x <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">DataCleanup</span><span style="color:#f92672">.</span>build_relevant_dataframe(<span style="color:#e6db74">&#34;data/train.csv&#34;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>select(<span style="color:#f92672">&amp;</span>(&amp;1 <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;Survived&#34;</span>), <span style="color:#e6db74">:drop</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>df_train_y <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">DataCleanup</span><span style="color:#f92672">.</span>build_relevant_dataframe(<span style="color:#e6db74">&#34;data/train.csv&#34;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>select(<span style="color:#f92672">&amp;</span>(&amp;1 <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;Survived&#34;</span>), <span style="color:#e6db74">:keep</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>df_test_x <span style="color:#f92672">=</span> <span style="color:#a6e22e">DataCleanup</span><span style="color:#f92672">.</span>build_relevant_dataframe(<span style="color:#e6db74">&#34;data/test.csv&#34;</span>)
+</span></span><span style="display:flex;"><span>x_test <span style="color:#f92672">=</span> to_tensor<span style="color:#f92672">.</span>(df_test_x)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>x_train <span style="color:#f92672">=</span> to_tensor<span style="color:#f92672">.</span>(df_train_x)
+</span></span><span style="display:flex;"><span>y_train <span style="color:#f92672">=</span> to_tensor<span style="color:#f92672">.</span>(df_train_y)
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<pre tabindex="0"><code>#Nx.Tensor&lt;
+  s64[891][1]
+  [
+    [0],
+    [1],
+    [1],
+    [1],
+    [0],
+    [0],
+    [0],
+    [0],
+    [1],
+    [1],
+    [1],
+    [1],
+    [0],
+    [0],
+    [0],
+    [1],
+    [0],
+    [1],
+    [0],
+    [1],
+    [0],
+    [1],
+    [1],
+    [1],
+    [0],
+    [1],
+    [0],
+    [0],
+    [1],
+    [0],
+    [0],
+    [1],
+    [1],
+    [0],
+    [0],
+    [0],
+    [1],
+    [0],
+    [0],
+    [1],
+    [0],
+    [0],
+    [0],
+    [1],
+    [1],
+    [0],
+    [0],
+    [1],
+    [0],
+    [0],
+    ...
+  ]
+&gt;
+</code></pre><h3 id="using-a-neural-network-with-axon">Using a Neural Network with Axon<a href="#using-a-neural-network-with-axon" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Axon is a really nice library that allows us to build a reasonably complex neural network in a few lines of code. We&rsquo;re going to train our model in batches in order to be more efficient with our calculations. If you&rsquo;re running this in Livebook, you can see how much the batch size has an effect on the time it takes to train the model and its performance (even on our small network and dataset).</p>
+<p>I have also chosen to use the popular &ldquo;adam&rdquo; optimizer function and a learning rate of 0.01, but these can be tweaked to eke out an extra bit of performance in the model.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>batched_train_inputs <span style="color:#f92672">=</span> <span style="color:#a6e22e">Nx</span><span style="color:#f92672">.</span>to_batched_list(x_train, <span style="color:#ae81ff">8</span>)
+</span></span><span style="display:flex;"><span>batched_train_targets <span style="color:#f92672">=</span> <span style="color:#a6e22e">Nx</span><span style="color:#f92672">.</span>to_batched_list(y_train, <span style="color:#ae81ff">8</span>)
+</span></span><span style="display:flex;"><span>batched_train <span style="color:#f92672">=</span> <span style="color:#a6e22e">Stream</span><span style="color:#f92672">.</span>zip(batched_train_inputs, batched_train_targets)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>model <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">Axon</span><span style="color:#f92672">.</span>input({<span style="color:#66d9ef">nil</span>, <span style="color:#ae81ff">7</span>}, <span style="color:#e6db74">&#34;input&#34;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Axon</span><span style="color:#f92672">.</span>dense(<span style="color:#ae81ff">32</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Axon</span><span style="color:#f92672">.</span>relu()
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Axon</span><span style="color:#f92672">.</span>dense(<span style="color:#ae81ff">8</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Axon</span><span style="color:#f92672">.</span>dense(<span style="color:#ae81ff">1</span>, <span style="color:#e6db74">activation</span>: <span style="color:#e6db74">:sigmoid</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>loss <span style="color:#f92672">=</span> <span style="color:#e6db74">:mean_squared_error</span>
+</span></span><span style="display:flex;"><span>learning_rate <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.01</span>
+</span></span><span style="display:flex;"><span>optimizer <span style="color:#f92672">=</span> <span style="color:#a6e22e">Axon.Optimizers</span><span style="color:#f92672">.</span>adam(learning_rate)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>model
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<pre tabindex="0"><code>---------------------------------------------------------------------------------------------------
+                                               Model
+===================================================================================================
+ Layer                              Shape       Policy              Parameters   Parameters Memory
+===================================================================================================
+ input ( input )                    {nil, 7}    p=f32 c=f32 o=f32   0            0 bytes
+ dense_0 ( dense[&#34;input&#34;] )         {nil, 32}   p=f32 c=f32 o=f32   256          1024 bytes
+ relu_0 ( relu[&#34;dense_0&#34;] )         {nil, 32}   p=f32 c=f32 o=f32   0            0 bytes
+ dense_1 ( dense[&#34;relu_0&#34;] )        {nil, 8}    p=f32 c=f32 o=f32   264          1056 bytes
+ dense_2 ( dense[&#34;dense_1&#34;] )       {nil, 1}    p=f32 c=f32 o=f32   9            36 bytes
+ sigmoid_0 ( sigmoid[&#34;dense_2&#34;] )   {nil, 1}    p=f32 c=f32 o=f32   0            0 bytes
+---------------------------------------------------------------------------------------------------
+Total Parameters: 529
+Total Parameters Memory: 2116 bytes
+Inputs: %{&#34;input&#34; =&gt; {nil, 7}}
+</code></pre><h3 id="training-the-model">Training the Model<a href="#training-the-model" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Now that we have defined the model&rsquo;s hidden layers, the loss function, and the optimizer, we can start feeding our model some training data to hone its ability to make predictions.</p>
+<p>Visualizing the results of the model are also going to be important, if only for the motivational effect of watching the result of the cost function inching closer toward zero on a chart. I chose to use a loop handler function mostly to showcase the functionaliy, but in any case, it will store the loss value after each iteration (epoch). While axon will return only the model&rsquo;s trained weights by default, we can use an output transformation to include this metadata with the results of training our model.</p>
+<p>Once we have our handler and output transformation ready to go, we can finally see this thing in action. If we can put aside the sneaking suspicion that we wrote all this code only to be as accurate as flipping a coin, let&rsquo;s train our model:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>epochs <span style="color:#f92672">=</span> <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Using output_transform to store the accumulated metadata, which will contain the loss value</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># at each epoch.</span>
+</span></span><span style="display:flex;"><span>trainer <span style="color:#f92672">=</span> model <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Axon.Loop</span><span style="color:#f92672">.</span>trainer(loss, optimizer)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>output_transform <span style="color:#f92672">=</span> <span style="color:#66d9ef">fn</span> state <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>  %{<span style="color:#e6db74">model_state</span>: state<span style="color:#f92672">.</span>step_state[<span style="color:#e6db74">:model_state</span>], <span style="color:#e6db74">metadata</span>: state<span style="color:#f92672">.</span>handler_metadata}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Axon.Loop.Trainer is just a struct, need to update the pre-filled output_transform function</span>
+</span></span><span style="display:flex;"><span>trainer <span style="color:#f92672">=</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>put(trainer, <span style="color:#e6db74">:output_transform</span>, output_transform)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># At the end of each epoch, store the loss value in handler_metadata</span>
+</span></span><span style="display:flex;"><span>plot_loss <span style="color:#f92672">=</span> <span style="color:#66d9ef">fn</span> state <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>  loss_val <span style="color:#f92672">=</span> get_in(state<span style="color:#f92672">.</span>metrics, [<span style="color:#e6db74">&#34;loss&#34;</span>]) <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Nx</span><span style="color:#f92672">.</span>to_flat_list() <span style="color:#f92672">|&gt;</span> hd()
+</span></span><span style="display:flex;"><span>  loss_values <span style="color:#f92672">=</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>get(state<span style="color:#f92672">.</span>handler_metadata, <span style="color:#e6db74">&#34;loss_values&#34;</span>, [])
+</span></span><span style="display:flex;"><span>  handler_metadata <span style="color:#f92672">=</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>put(state<span style="color:#f92672">.</span>handler_metadata, <span style="color:#e6db74">&#34;loss_values&#34;</span>, loss_values <span style="color:#f92672">++</span> [loss_val])
+</span></span><span style="display:flex;"><span>  state <span style="color:#f92672">=</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">.</span>put(state, <span style="color:#e6db74">:handler_metadata</span>, handler_metadata)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  {<span style="color:#e6db74">:continue</span>, state}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># output_transform dictates the shape of `Axon.Loop.Run`</span>
+</span></span><span style="display:flex;"><span>%{<span style="color:#e6db74">model_state</span>: trained_model, <span style="color:#e6db74">metadata</span>: %{<span style="color:#e6db74">&#34;loss_values&#34;</span> <span style="color:#f92672">=&gt;</span> loss_values}} <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>  trainer
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Axon.Loop</span><span style="color:#f92672">.</span>handle(<span style="color:#e6db74">:epoch_completed</span>, plot_loss)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Axon.Loop</span><span style="color:#f92672">.</span>run(<span style="color:#a6e22e">Stream</span><span style="color:#f92672">.</span>zip(batched_train_inputs, batched_train_targets), %{}, <span style="color:#e6db74">epochs</span>: epochs)
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<pre tabindex="0"><code>Epoch: 0, Batch: 100, loss: 0.1640735
+Epoch: 1, Batch: 100, loss: 0.1527200
+Epoch: 2, Batch: 100, loss: 0.1477675
+Epoch: 3, Batch: 100, loss: 0.1447048
+Epoch: 4, Batch: 100, loss: 0.1425270
+Epoch: 5, Batch: 100, loss: 0.1411263
+Epoch: 6, Batch: 100, loss: 0.1398882
+Epoch: 7, Batch: 100, loss: 0.1388006
+Epoch: 8, Batch: 100, loss: 0.1379194
+Epoch: 9, Batch: 100, loss: 0.1371443
+Epoch: 10, Batch: 100, loss: 0.1364465
+...
+Epoch: 98, Batch: 100, loss: 0.1238978
+Epoch: 99, Batch: 100, loss: 0.1238549
+</code></pre><!-- raw HTML omitted -->
+<pre tabindex="0"><code>%{
+  metadata: %{
+    &#34;loss_values&#34; =&gt; [0.16193918883800507, 0.1519005447626114, 0.14717158675193787,
+     0.14418663084506989, 0.14209724962711334, 0.1407088190317154, 0.1395207792520523,
+     0.13844850659370422, 0.13761302828788757, 0.13685482740402222, 0.13617441058158875,
+     0.13553673028945923, 0.13502216339111328, 0.13455359637737274, 0.1341123729944229,
+     0.13369393348693848, 0.13333043456077576, 0.13296577334403992, 0.13263621926307678,
+     0.13233985006809235, 0.13204225897789001, 0.13178651034832, 0.1315300315618515,
+     0.1313217729330063, 0.13107798993587494, 0.13085655868053436, 0.13064654171466827,
+     0.13046181201934814, 0.13026021420955658, 0.13005253672599792, 0.129860982298851,
+     0.12965837121009827, 0.12945054471492767, 0.12925803661346436, 0.1290828287601471,
+     0.12892134487628937, 0.12875521183013916, 0.12858687341213226, 0.12842632830142975,
+     0.12827393412590027, 0.1281227171421051, 0.12797710299491882, 0.1278315782546997,
+     0.12770028412342072, 0.1275707632303238, 0.12743964791297913, 0.1273147463798523,
+     0.12719707190990448, ...]
+  },
+  model_state: %{
+    &#34;dense_0&#34; =&gt; %{
+      &#34;bias&#34; =&gt; #Nx.Tensor&lt;
+        f32[32]
+        [0.48431119322776794, -0.3218774199485779, -0.3365810215473175, -0.7434893250465393, -0.059355683624744415, -0.5267767310142517, -0.09751468896865845, -1.2660173177719116, -0.5662182569503784, -0.052933838218450546, 0.011728767305612564, -0.20872630178928375, -0.25485992431640625, 0.3001868724822998, -0.48852279782295227, -0.5277023911476135, -1.46438729763031, -0.11637403070926666, -0.23592086136341095, 0.5312404632568359, -0.18907999992370605, -0.8861296772956848, -1.9921395778656006, -0.3276658058166504, -0.14148756861686707, -0.08799608796834946, -0.5120258927345276, -0.5496641993522644, -0.44760748744010925, 0.27319273352622986, -0.3149799406528473, 0.24053142964839935]
+      &gt;,
+      &#34;kernel&#34; =&gt; #Nx.Tensor&lt;
+        f32[7][32]
+        [
+          [-2.112074613571167, 0.245676651597023, 1.359257698059082, 0.044966921210289, -0.06395534425973892, 0.2173847109079361, -0.13602691888809204, 0.8178601264953613, -1.257620930671692, -0.4693145155906677, 0.6687984466552734, 1.6996864080429077, -0.024476123973727226, -0.3558703064918518, -0.4285537600517273, 1.2962980270385742, 0.7204050421714783, 0.07872967422008514, -0.7387552857398987, -2.3958849906921387, 0.22929106652736664, -1.447434425354004, 0.9135518670082092, -0.3228147625923157, -0.0020771073177456856, -0.09033364057540894, -0.02768341824412346, 0.2156837433576584, -0.2429112195968628, -1.9384404420852661, 1.5690561532974243, -1.6603679656982422],
+          [0.23627085983753204, -0.8921284675598145, 1.2259567975997925, 2.201821804046631, 0.07504372298717499, -0.08471934497356415, -0.03623810037970543, 1.6597213745117188, 0.6584843993186951, -0.432372123003006, -7.905939102172852, -0.6525036692619324, 0.09789866209030151, ...],
+          ...
+        ]
+      &gt;
+    },
+    &#34;dense_1&#34; =&gt; %{
+      &#34;bias&#34; =&gt; #Nx.Tensor&lt;
+        f32[8]
+        [-0.15212774276733398, -0.03979223221540451, -0.18317702412605286, 0.07438859343528748, 0.00686146505177021, 0.003242790699005127, -0.11101000010967255, 0.08618582785129547]
+      &gt;,
+      &#34;kernel&#34; =&gt; #Nx.Tensor&lt;
+        f32[32][8]
+        [
+          [-0.44955071806907654, 0.16989654302597046, -0.4962971806526184, 0.10145474225282669, -0.13934916257858276, -0.003514248877763748, -0.2227456420660019, -0.11616845428943634],
+          [-0.19957245886325836, 0.019206302240490913, 0.15599700808525085, -0.18888533115386963, -0.1668655425310135, -0.2813955843448639, 0.07639379799365997, -0.1949022114276886],
+          [0.420330286026001, 0.046093907207250595, 0.6452733278274536, 0.04875735938549042, -0.050045158714056015, -0.04381776601076126, -0.19390226900577545, -0.16936610639095306],
+          [0.5843852162361145, 0.23029372096061707, 0.1350916475057602, 0.07630657404661179, -0.05963528901338577, -0.07237391918897629, -0.002917686477303505, -0.30435481667518616],
+          [-0.11707118898630142, 0.18852463364601135, 0.13916735351085663, -0.23189371824264526, -0.3102315664291382, -0.3165343701839447, 0.29969581961631775, -1.9986118422821164e-4],
+          [-0.08958841115236282, 0.08741355687379837, 0.16904757916927338, -0.17817290127277374, ...],
+          ...
+        ]
+      &gt;
+    },
+    &#34;dense_2&#34; =&gt; %{
+      &#34;bias&#34; =&gt; #Nx.Tensor&lt;
+        f32[1]
+        [0.03484217822551727]
+      &gt;,
+      &#34;kernel&#34; =&gt; #Nx.Tensor&lt;
+        f32[8][1]
+        [
+          [-0.4545503854751587],
+          [-0.0426076278090477],
+          [-0.5270304679870605],
+          [-0.10788994282484055],
+          [0.05954229459166527],
+          [0.014364827424287796],
+          [0.14906303584575653],
+          [0.016167059540748596]
+        ]
+      &gt;
+    }
+  }
+}
+</code></pre><h3 id="charting-the-results">Charting the Results<a href="#charting-the-results" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>The missing piece of the Elixir ML suite to this point has been the ability to visualize data within Livebook. Lucky for us, Elixir has a nice <a href="https://github.com/vega/vega-lite">VegaLite</a> integration and uses <a href="https://github.com/livebook-dev/kino">Kino</a> to display the chart right in Livebook.</p>
+<p>You could put the chart rendering in the training loop and update it on completion of each epoch, but here I&rsquo;m simply iterating over the loss values from our model&rsquo;s training outputs. In the end, the result is the same: Our cost value is going down over time and all is right with the world.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span><span style="color:#75715e"># Plotting the loss function over time.  Can push values in the plot_loss function to show</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># it rendering in real time.</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>chart <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">Vl</span><span style="color:#f92672">.</span>new(<span style="color:#e6db74">width</span>: <span style="color:#ae81ff">400</span>, <span style="color:#e6db74">height</span>: <span style="color:#ae81ff">400</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Vl</span><span style="color:#f92672">.</span>mark(<span style="color:#e6db74">:line</span>, <span style="color:#e6db74">tooltip</span>: <span style="color:#66d9ef">false</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Vl</span><span style="color:#f92672">.</span>encode_field(<span style="color:#e6db74">:x</span>, <span style="color:#e6db74">&#34;Epoch&#34;</span>, <span style="color:#e6db74">type</span>: <span style="color:#e6db74">:quantitative</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Vl</span><span style="color:#f92672">.</span>encode_field(<span style="color:#e6db74">:y</span>, <span style="color:#e6db74">&#34;Loss&#34;</span>, <span style="color:#e6db74">type</span>: <span style="color:#e6db74">:quantitative</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Kino.VegaLite</span><span style="color:#f92672">.</span>new()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>chart <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Kino</span><span style="color:#f92672">.</span>render()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>with_index(loss_values)
+</span></span><span style="display:flex;"><span><span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Enum</span><span style="color:#f92672">.</span>each(<span style="color:#66d9ef">fn</span> {lv, idx} <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">Kino.VegaLite</span><span style="color:#f92672">.</span>push(chart, %{<span style="color:#e6db74">&#34;Epoch&#34;</span> <span style="color:#f92672">=&gt;</span> idx <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, <span style="color:#e6db74">&#34;Loss&#34;</span> <span style="color:#f92672">=&gt;</span> lv})
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">Process</span><span style="color:#f92672">.</span>sleep(<span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>)
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<pre tabindex="0"><code>:ok
+</code></pre><h3 id="who-survived">Who Survived?<a href="#who-survived" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Now that we&rsquo;ve trained our model, the only thing left to do is to have it generate predictions. Axon allows us to run our predictions with the test data we previously loaded into a tensor, create a DataFrame with this information, and output the result to a CSV. While you can&rsquo;t enter your results in to the Kaggle competition, you can take solace in the fact that you now know how to build a neural network in Elixir.</p>
+<p>While there were some minor immaturities in the ecosystem that could have derailed us in the early stages, it&rsquo;s clear that there is a bright future for machine learning development in Elixir. I&rsquo;ll still begrudgingly write Python for most of my new projects, but I&rsquo;m excited to report that viable alternatives exist!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>results <span style="color:#f92672">=</span> <span style="color:#a6e22e">Axon</span><span style="color:#f92672">.</span>predict(model, trained_model, x_test) <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Nx</span><span style="color:#f92672">.</span>round()
+</span></span><span style="display:flex;"><span>survived_series <span style="color:#f92672">=</span> <span style="color:#a6e22e">Explorer.Series</span><span style="color:#f92672">.</span>from_tensor(results)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>from_csv!(<span style="color:#e6db74">&#34;data/test.csv&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>mutate(%{<span style="color:#e6db74">Survived</span>: survived_series})
+</span></span><span style="display:flex;"><span><span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>select([<span style="color:#e6db74">&#34;PassengerId&#34;</span>, <span style="color:#e6db74">&#34;Survived&#34;</span>], <span style="color:#e6db74">:keep</span>)
+</span></span><span style="display:flex;"><span><span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Explorer.DataFrame</span><span style="color:#f92672">.</span>to_csv!(<span style="color:#e6db74">&#34;data/results.csv&#34;</span>)
+</span></span></code></pre></div>
+			</div>
+			<hr class="post-end">
+			<footer class="post-info">
+				<p>
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg><span class="tag"><a href="//ryancurtin.com/tags/elixir">elixir</a></span><span class="tag"><a href="//ryancurtin.com/tags/neural-network">neural network</a></span><span class="tag"><a href="//ryancurtin.com/tags/machine-learning">machine learning</a></span>
+				</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>3513 Words</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2022-08-03 16:52 -0400</p>
+			</footer>
+		</article>
+		<div class="post-nav thin">
+		</div>
+		<div id="comments" class="thin">
+</div>
+	</main>
+
+	<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+		<p>&copy; 2022 <a href="//ryancurtin.com/"></a></p>
+		<p>
+			Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> &#183; Theme <a href="https://github.com/Track3/hermit" target="_blank" rel="noopener">Hermit</a> &#183; <a href="//ryancurtin.com/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a>
+		</p>
+	</footer>
+
+
+
+	<script src="//ryancurtin.com/js/bundle.min.580988ed2982bcbb74a1773c7abea97b43e4c43b9324e10cda0813ec6ec4bb67.js" integrity="sha256-WAmI7SmCvLt0oXc8er6pe0PkxDuTJOEM2ggT7G7Eu2c=" crossorigin="anonymous"></script>
+	
+
+</body>
+
+</html>
